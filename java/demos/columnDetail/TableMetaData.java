@@ -13,22 +13,44 @@ public class TableMetaData extends HashMap<String, Object> {
 	private String schemaName;
 	private String catalogName;
 
+	private boolean strict = false;
+
+	public TableMetaData(boolean strict) {
+		this.strict = strict;
+		this.put(PROP_CATALOGNAME, "");
+		this.put(PROP_SCHEMANAME, "");
+		this.put(PROP_COMMENT, "");
+	}
+
 	public void setName(String name) {
+		name = trim(name);
 		this.name = name;
 		if (name != null)
 			this.put(PROP_NAME, name);
 	}
 
 	public void setCatalogName(String catalogName) {
+		catalogName = trim(catalogName);
 		this.catalogName = catalogName;
 		if (catalogName != null)
 			this.put(PROP_CATALOGNAME, catalogName);
 	}
 
 	public void setSchemaName(String schemaName) {
+		schemaName = trim(schemaName);
 		this.schemaName = schemaName;
 		if (schemaName != null)
 			this.put(PROP_SCHEMANAME, schemaName);
+	}
+
+	private String trim(String string) {
+		if (string == null)
+			return string;
+
+		if (string.startsWith("\"") && string.endsWith("\""))
+			return string.substring(1, string.length() - 1);
+
+		return string;
 	}
 
 	public void setComment(String comment) {
@@ -55,12 +77,14 @@ public class TableMetaData extends HashMap<String, Object> {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result
-				+ ((catalogName == null) ? 0 : catalogName.hashCode());
+		int result = 0;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((schemaName == null) ? 0 : schemaName.hashCode());
+		if (strict) {
+			result = prime * result
+					+ ((catalogName == null) ? 0 : catalogName.hashCode());
+			result = prime * result
+					+ ((schemaName == null) ? 0 : schemaName.hashCode());
+		}
 		return result;
 	}
 
@@ -71,21 +95,27 @@ public class TableMetaData extends HashMap<String, Object> {
 		if (getClass() != obj.getClass())
 			return false;
 		TableMetaData other = (TableMetaData) obj;
-		if (catalogName == null) {
-			if (other.catalogName != null)
+
+		if (strict) {
+			if (catalogName == null) {
+				if (other.catalogName != null)
+					return false;
+			} else if (!catalogName.equals(other.catalogName))
 				return false;
-		} else if (!catalogName.equals(other.catalogName))
-			return false;
+
+			if (schemaName == null) {
+				if (other.schemaName != null)
+					return false;
+			} else if (!schemaName.equals(other.schemaName))
+				return false;
+		}
+
 		if (name == null) {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (schemaName == null) {
-			if (other.schemaName != null)
-				return false;
-		} else if (!schemaName.equals(other.schemaName))
-			return false;
+
 		return true;
 	}
 

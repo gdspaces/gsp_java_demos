@@ -30,7 +30,11 @@ public class ColumnMetaData extends LinkedHashMap<String, Object> {
 	private String schemaName;
 	private String catalogName;
 
-	public ColumnMetaData() {
+	private boolean strict = false;
+
+	public ColumnMetaData(boolean strict) {
+		this.strict = strict;
+
 		this.put(PROP_CATALOGNAME, "");
 		this.put(PROP_SCHEMANAME, "");
 		this.put(PROP_TABLENAME, "");
@@ -56,14 +60,17 @@ public class ColumnMetaData extends LinkedHashMap<String, Object> {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result
-				+ ((catalogName == null) ? 0 : catalogName.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((schemaName == null) ? 0 : schemaName.hashCode());
+		int result = 0;
+		if (strict) {
+			result = prime * result
+					+ ((catalogName == null) ? 0 : catalogName.hashCode());
+
+			result = prime * result
+					+ ((schemaName == null) ? 0 : schemaName.hashCode());
+		}
 		result = prime * result
 				+ ((tableName == null) ? 0 : tableName.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -74,20 +81,22 @@ public class ColumnMetaData extends LinkedHashMap<String, Object> {
 		if (getClass() != obj.getClass())
 			return false;
 		ColumnMetaData other = (ColumnMetaData) obj;
-		if (catalogName == null) {
-			if (other.catalogName != null)
+		if (strict) {
+			if (catalogName == null) {
+				if (other.catalogName != null)
+					return false;
+			} else if (!catalogName.equals(other.catalogName))
 				return false;
-		} else if (!catalogName.equals(other.catalogName))
-			return false;
+			if (schemaName == null) {
+				if (other.schemaName != null)
+					return false;
+			} else if (!schemaName.equals(other.schemaName))
+				return false;
+		}
 		if (name == null) {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
-			return false;
-		if (schemaName == null) {
-			if (other.schemaName != null)
-				return false;
-		} else if (!schemaName.equals(other.schemaName))
 			return false;
 		if (tableName == null) {
 			if (other.tableName != null)
@@ -114,6 +123,7 @@ public class ColumnMetaData extends LinkedHashMap<String, Object> {
 	}
 
 	public void setName(String name) {
+		name = trim(name);
 		this.name = name;
 	}
 
@@ -130,6 +140,7 @@ public class ColumnMetaData extends LinkedHashMap<String, Object> {
 	}
 
 	public void setTableName(String tableName) {
+		tableName = trim(tableName);
 		this.tableName = tableName;
 		if (tableName != null)
 			this.put(PROP_TABLENAME, tableName);
@@ -140,6 +151,7 @@ public class ColumnMetaData extends LinkedHashMap<String, Object> {
 	}
 
 	public void setCatalogName(String catalogName) {
+		catalogName = trim(catalogName);
 		this.catalogName = catalogName;
 		if (catalogName != null)
 			this.put(PROP_CATALOGNAME, catalogName);
@@ -154,9 +166,20 @@ public class ColumnMetaData extends LinkedHashMap<String, Object> {
 	}
 
 	public void setSchemaName(String schemaName) {
+		schemaName = trim(schemaName);
 		this.schemaName = schemaName;
 		if (schemaName != null)
 			this.put(PROP_SCHEMANAME, schemaName);
+	}
+
+	private String trim(String string) {
+		if (string == null)
+			return string;
+
+		if (string.startsWith("\"") && string.endsWith("\""))
+			return string.substring(1, string.length() - 1);
+
+		return string;
 	}
 
 	public void setWriteable(boolean writeable) {
