@@ -32,7 +32,6 @@ public class tableColumnRename {
 
 	private class metaDB implements IMetaDatabase {
 
-		@Override
 		public boolean checkColumn(String pServer, String pDatabase,
 				String pSchema, String pTable, String pColumn) {
 			String tablePrefix = pTable;

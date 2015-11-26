@@ -11,7 +11,6 @@ import gudusoft.gsqlparser.TGSqlParser;
 import gudusoft.gsqlparser.nodes.TResultColumn;
 import gudusoft.gsqlparser.nodes.TResultColumnList;
 import gudusoft.gsqlparser.stmt.TSelectSqlStatement;
-import demos.columnInClause;
 
 public class columnsInResultColumn {
 
